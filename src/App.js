@@ -1,22 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import Post from "./Post";
+import { db } from "./firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 function App() {
-  const [posts, setPosts] = useState([
-    {
-      username: "urstruly_prabhat",
-      caption: "Wow it works!",
-      imageUrl:
-        "https://res.cloudinary.com/practicaldev/image/fetch/s--goETGOXU--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_66%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/x3x5w638kkixi9s3h3vw.gif",
-    },
-    {
-      username: "urstruly_prabhat",
-      caption: "Wow it works!",
-      imageUrl:
-        "https://res.cloudinary.com/practicaldev/image/fetch/s--goETGOXU--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_66%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/x3x5w638kkixi9s3h3vw.gif",
-    },
-  ]);
+  const [posts, setPosts] = useState([]);
+
+  async function getData() {
+    const querySnapshot = await getDocs(collection(db, "posts"));
+    setPosts(querySnapshot.docs.map((doc) => doc.data()));
+  }
+
+  useEffect(() => {
+    getData();
+  }, []);
+
   return (
     <div className="app">
       <div className="app__header">
@@ -31,6 +30,7 @@ function App() {
 
       {posts.map((post) => (
         <Post
+          key={post.id}
           username={post.username}
           caption={post.caption}
           imageUrl={post.imageUrl}
