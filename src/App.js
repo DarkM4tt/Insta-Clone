@@ -9,6 +9,7 @@ import {
 } from "firebase/auth";
 import { collection, getDocs } from "firebase/firestore";
 import { Button, Modal, Box, Input } from "@mui/material";
+import ImageUpload from "./ImageUpload";
 
 const style = {
   position: "absolute",
@@ -41,8 +42,7 @@ function App() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
-        //user has logged in...
-        console.log(authUser);
+        //user has logged in....
         setUser(authUser);
       } else {
         //user has logged out...
@@ -65,7 +65,7 @@ function App() {
 
     createUserWithEmailAndPassword(auth, email, password)
       .then((authUser) => {
-        return updateProfile(authUser, {
+        return updateProfile(authUser.user, {
           displayName: username,
         })
           .then(() => {
@@ -90,8 +90,16 @@ function App() {
     setOpenSignIn(false);
   };
 
+  user && console.log(user.displayName);
+
   return (
     <div className="app">
+      {user?.displayName ? (
+        <ImageUpload username={user.displayName} />
+      ) : (
+        <h3>Sorry, you need to login to upload!</h3>
+      )}
+
       <Modal
         open={openSignIn}
         onClose={() => setOpenSignIn(false)}
