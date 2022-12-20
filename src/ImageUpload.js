@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Button } from "@mui/material";
-import { storage } from "./firebase";
+import { db, storage } from "./firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-//import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
-const ImageUpload = () => {
+const ImageUpload = ({ username }) => {
   const [image, setImage] = useState(null);
   const [progress, setProgress] = useState(0);
   const [caption, setCaption] = useState("");
@@ -22,28 +22,25 @@ const ImageUpload = () => {
     uploadTask.on(
       "state_changed",
       (snapshot) => {
-        const progress =
-          Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
         setProgress(progress);
       },
       (error) => {
-        switch (error.code) {
-          case "storage/unauthorized":
-            console.log("User doesnt have permission to access the object!");
-            break;
-          case "storage/canceled":
-            console.log("User canceled the upload!");
-            break;
-          case "storage/unknown":
-            console.log("Unknown error occurred, inspect error.serverResponse");
-            break;
-          default:
-            console.log("Unknown error occured!");
-        }
+        console.log(error);
       },
       () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log("File available at", downloadURL);
+        getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+          await setDoc(doc(db, "posts", `${Math.random()}`), {
+            timestamp: serverTimestamp(),
+            caption: caption,
+            imageUrl: downloadURL,
+            username: username,
+          });
+          setProgress(0);
+          setCaption("");
+          setImage(null);
         });
       }
     );
@@ -80,8 +77,6 @@ const ImageUpload = () => {
   //       }
   //     );
   //   };
-
-  image && console.log(image.name);
 
   return (
     <div>

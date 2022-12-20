@@ -7,7 +7,7 @@ import {
   updateProfile,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot, query } from "firebase/firestore";
 import { Button, Modal, Box, Input } from "@mui/material";
 import ImageUpload from "./ImageUpload";
 
@@ -32,32 +32,31 @@ function App() {
   const [username, setUsername] = useState("");
   const [user, setUser] = useState(null);
 
-  async function getData() {
-    const querySnapshot = await getDocs(collection(db, "posts"));
-    setPosts(
-      querySnapshot.docs.map((doc) => ({ id: doc.id, post: doc.data() }))
-    );
-  }
-
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
-        //user has logged in....
         setUser(authUser);
       } else {
-        //user has logged out...
         setUser(null);
       }
     });
 
     return () => {
-      //cleanup
       unsubscribe();
     };
   }, [user, username]);
 
   useEffect(() => {
-    getData();
+    const q = query(collection(db, "posts"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      setPosts(
+        querySnapshot.docs.map((doc) => ({ id: doc.id, post: doc.data() }))
+      );
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const signup = (e) => {
@@ -89,8 +88,6 @@ function App() {
 
     setOpenSignIn(false);
   };
-
-  user && console.log(user.displayName);
 
   return (
     <div className="app">
