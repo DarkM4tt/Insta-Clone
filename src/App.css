@@ -6,7 +6,20 @@
   background-color: #fafafa;
 }
 
+.app__posts {
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.app__postsRight {
+  margin-left: 30px;
+}
+
 .app__header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   display: flex;
   background-color: white;
   padding: 20px;

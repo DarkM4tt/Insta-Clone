@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import "./App.css";
 import Post from "./Post";
 import { db, auth } from "./firebase";
 import {
@@ -10,6 +9,9 @@ import {
 import { collection, onSnapshot, query } from "firebase/firestore";
 import { Button, Modal, Box, Input } from "@mui/material";
 import ImageUpload from "./ImageUpload";
+import { InstagramEmbed } from "react-social-media-embed";
+
+import "./App.css";
 
 const style = {
   position: "absolute",
@@ -181,16 +183,30 @@ function App() {
         )}
       </div>
 
-      <h1>Hello Eliminator! Let's build an instagram clone.</h1>
-
-      {posts.map(({ id, post }) => (
-        <Post
-          key={id}
-          username={post.username}
-          caption={post.caption}
-          imageUrl={post.imageUrl}
-        />
-      ))}
+      <div className="app__posts">
+        <div className="app__postsLeft">
+          {posts.map(({ id, post }) => (
+            <Post
+              key={id}
+              postId={id}
+              user={user}
+              username={post.username}
+              caption={post.caption}
+              imageUrl={post.imageUrl}
+            />
+          ))}
+        </div>
+        <div
+          className="app__postsRight"
+          //style={{ display: "flex", justifyContent: "center" }}
+        >
+          <InstagramEmbed
+            url="https://www.instagram.com/p/CUbHfhpswxt/"
+            width={328}
+            captioned
+          />
+        </div>
+      </div>
 
       {user?.displayName ? (
         <ImageUpload username={user.displayName} />
